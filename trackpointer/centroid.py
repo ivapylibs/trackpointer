@@ -38,10 +38,14 @@ import matplotlib.pyplot as plt
 
 class State(object):
 
-  def __init__(self, tPt=None, haveMeas=None):
-    self.tPt = tPt
+  def __init__(self, tpt=None, haveMeas=None):
+    self.tpt = tpt
     self.haveMeas = haveMeas
 
+class Params(object):
+
+  def __init__(self):
+    pass
 
 class centroid(object):
 
@@ -52,12 +56,14 @@ class centroid(object):
   # @param[in]  iPt     The initial track point coordinates.
   # @param[in]  params   The parameter structure.
   #
-  def __init__(self, iPt, params=None):
+  def __init__(self, iPt=None, params=None):
 
-    self.tpt = iPt
+    if iPt:
+      self.tpt = iPt
 
     if params is None:
       params = self.setIfMissing(params,'plotStyle','rx')
+
     self.tparams = params
     self.haveMeas = False
 
@@ -166,14 +172,20 @@ class centroid(object):
   def measure(self, I):
 
 
-    if self.tparams.improcessor:
+    if hasattr(self.tparams, 'improcessor') and self.tparams.improcessor:
       Ip = self.tparams.improcessor.apply(I)
     else:
       Ip = I
 
 
     ibin, jbin = np.nonzero(Ip)
-    self.tpt = np.concatenate((np.mean(jbin), np.mean(ibin)),axis=0)
+
+    self.tpt = np.array([np.mean(jbin), np.mean(ibin)]).reshape(-1,1)
+
+    # # @todo
+    # # Not sure if we need a check on the value when target is lost
+    # if np.isnan(self.tpt ).any():
+    #   print('s')
 
     #   center = transpose(size(image)*[0 1;1 0]+1)/2;
     #  trackpoint = trackpoint - center;
@@ -236,6 +248,8 @@ class centroid(object):
 
     # @todo
     # Need double check on this translation
+    if params is None or not isinstance(params):
+      params = Params()
     setattr(params, pname, pval)
     return params
 
