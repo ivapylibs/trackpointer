@@ -95,7 +95,7 @@ class centroid(object):
   #
   def emptystate(self):
 
-    estate= State(tpt=[],haveMeas=False)
+    estate= State(tpt=[], haveMeas=False)
 
     return estate
 
@@ -236,7 +236,7 @@ class centroid(object):
 
     # @todo
     # Need double check on this translation
-    setattr(params, 'pname', pval)
+    setattr(params, pname, pval)
     return params
 
 #
