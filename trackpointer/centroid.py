@@ -229,15 +229,14 @@ class centroid(object):
   #---------------------------- setIfMissing ---------------------------
   #
   #  @brief Set missing parameters in the registration parameters structure.
-  #  @param[in]  pname       Name of parameter.
+  #  @param[in]  params      The parameter structure.
+  #              pname       Name of parameter.
   #              pval        Value of parameter.
   def setIfMissing(self, params, pname, pval):
 
     # @todo
-    # Need updates on this translation
-    # setattr(params,pname) = pval
-    params.pname = pval
-
+    # Need double check on this translation
+    setattr(params, 'pname', pval)
     return params
 
 #
