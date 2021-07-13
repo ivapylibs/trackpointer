@@ -62,7 +62,7 @@ else:
   ftarg = fakeTriangle(pMark, None, imSize)
 
 
-#==[2] Define the marker tracking interface. Consists of a neon detector and a
+#==[2] Define the marker tracking interface. Consists of a color detector (binary) and a
 #       track pointer.
 #
 
