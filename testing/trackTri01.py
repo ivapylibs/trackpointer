@@ -32,17 +32,15 @@
 
 #==[0] Prep environment.
 #
+import operator
 import numpy as np
+import matplotlib.pyplot as plt
+
 from fakeTriangle import fakeTriangle
 import Lie.group.SE2.Homog
-import  matplotlib.pyplot as plt
-
-import cv2
-
 import improcessor.basic as improcessor
 import detector.inImage as detector
 import trackpointer.centroid as tracker
-import operator
 
 #==[1] Specify the marker geometry on the rigid body, and other related
 #       parameters. Instantiate the simulated image generator.

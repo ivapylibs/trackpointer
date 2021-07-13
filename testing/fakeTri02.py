@@ -31,10 +31,10 @@
 #==[0] Prep environment.
 #
 import numpy as np
+import matplotlib.pyplot as plt
+
 from fakeTriangle import fakeTriangle
 import Lie.group.SE2.Homog
-import  matplotlib.pyplot as plt
-
 #==[1] Specify the marker geometry on the rigid body, and other related
 #       parameters. Instantiate the simulated image generator.
 #
