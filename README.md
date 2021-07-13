@@ -5,7 +5,7 @@ Implementations of trackpointer methods. Track object by giving track point or t
 
 ```
 git clone git@github.com:ivapylibs/detector.git
-pip3 install -e detector/
+pip3 install -e trackpointer/
 ```
 
 The test files are shell command line executable and should work when
