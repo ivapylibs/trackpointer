@@ -4,7 +4,7 @@ Implementations of trackpointer methods. Track object by giving track point or t
 ## installation instruction
 
 ```
-git clone git@github.com:ivapylibs/detector.git
+git clone git@github.com:ivapylibs/trackpointer.git
 pip3 install -e trackpointer/
 ```
 
