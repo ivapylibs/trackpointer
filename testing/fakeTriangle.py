@@ -56,7 +56,7 @@ class fakeTriangle(object):
       self.sMark = sMark
       self.noMarker = False
     else:
-      warnings('fakeTriangle: pMark and sMark are incompatible sizes.')
+      warnings.warn('fakeTriangle: pMark and sMark are incompatible sizes.')
 
     self.imSize = imSize
 
