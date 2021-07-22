@@ -57,7 +57,7 @@ class centroidMulti(centroid):
   # @brief      Centroid track-pointer constructor.
   #
   # @param[in]  iPt     The initial track point coordinates.
-  # @param[in]  params   The parameter structure.
+  #             params   The parameter structure.
   #
   def __init__(self, iPt=None, params=None):
 
@@ -69,7 +69,7 @@ class centroidMulti(centroid):
   # @brief  Set parameters for the tracker.
   #
   # @param[in]  fname       Name of parameter.
-  # @param[in]  fval        Value of parameter.
+  #             fval        Value of parameter.
   #
   def set(self, fname, fval):
 
@@ -83,6 +83,7 @@ class centroidMulti(centroid):
   # @brief  Get parameter of the tracker.
   #
   # @param[in]  fname       Name of parameter.
+  #
   # @param[out] fval        Value of parameter.
   #
   def get(self, fname):
@@ -103,8 +104,6 @@ class centroidMulti(centroid):
       Ip = self.tparams.improcessor.apply(I)
     else:
       Ip = I
-    plt.imshow(Ip)
-    plt.show()
 
     binReg = centroidMulti.regionProposal(Ip)
     self.tpt =  np.array(binReg).T # from N x 2 to 2 x N

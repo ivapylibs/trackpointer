@@ -53,8 +53,8 @@ class centroid(object):
   #
   # @brief      Centroid track-pointer constructor.
   #
-  # @param[in]  iPt     The initial track point coordinates.
-  # @param[in]  params   The parameter structure.
+  # @param[in]  iPt      The initial track point coordinates.
+  #             params   The parameter structure.
   #
   def __init__(self, iPt=None, params=None):
 
@@ -72,7 +72,7 @@ class centroid(object):
   # @brief  Set parameters for the tracker.
   #
   # @param[in]  fname       Name of parameter.
-  # @param[in]  fval        Value of parameter.
+  #             fval        Value of parameter.
   #
   def set(self, fname, fval):
 
@@ -151,8 +151,6 @@ class centroid(object):
   def transform(self, g):
 
     if self.tpt:
-      # @todo need double check on this usage of g
-      #  this.tpt = g .* this.tpt;
       self.tpt = g * self.tpt
 
 
@@ -167,7 +165,9 @@ class centroid(object):
   #
   # @brief  Measure the track point from the given image.
   #
-  # @param[in]  I   The input image.
+  # @param[in]  I         The input image.
+  #
+  # @param[out] mstate    The measured state.
   #
   def measure(self, I):
 
@@ -182,10 +182,7 @@ class centroid(object):
 
     self.tpt = np.array([np.mean(jbin), np.mean(ibin)]).reshape(-1,1)
 
-    # # @todo
-    # # Not sure if we need a check on the value when target is lost
-    # if np.isnan(self.tpt ).any():
-    #   print('s')
+    self.haveMeas = self.tpt.shape[1] > 0
 
     #   center = transpose(size(image)*[0 1;1 0]+1)/2;
     #  trackpoint = trackpoint - center;
@@ -238,12 +235,16 @@ class centroid(object):
   def displayDebugState(self, dbstate=None):
     pass
 
-  #---------------------------- setIfMissing ---------------------------
+  #========================= setIfMissing =========================
   #
   #  @brief Set missing parameters in the registration parameters structure.
+  #
   #  @param[in]  params      The parameter structure.
   #              pname       Name of parameter.
   #              pval        Value of parameter.
+  #
+  #  @param[out] params      The parameter structure.
+  #
   def setIfMissing(self, params, pname, pval):
 
     # @todo
