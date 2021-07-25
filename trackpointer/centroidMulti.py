@@ -108,7 +108,10 @@ class centroidMulti(centroid):
     binReg = centroidMulti.regionProposal(Ip)
     self.tpt =  np.array(binReg).T # from N x 2 to 2 x N
 
-    self.haveMeas = self.tpt.shape[1] > 0
+    if len(self.tpt) == 0:
+      self.haveMeas = 0
+    else:
+      self.haveMeas = self.tpt.shape[1] > 0
 
     # @todo
     # Not sure if the translation is correct
