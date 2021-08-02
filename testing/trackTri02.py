@@ -130,10 +130,10 @@ for ii in range(1000):# Loop to udpate pose and re-render.
   # For now, we manully set the state.
   if ii==0:
     # Start tracking
-    trackptr.setState(tstate.tpt)
+    trackptr.setState(tstate)
 
   plt.cla()
-  trackptr.displayState(tstate)
+  trackptr.displayState()
 
   plt.imshow(I, cmap='Greys')
   plt.pause(0.001)

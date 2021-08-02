@@ -58,14 +58,17 @@ class centroid(object):
   #
   def __init__(self, iPt=None, params=None):
 
-    if iPt:
-      self.tpt = iPt
-
-    if params is None:
+    if not isinstance(params, Params):
       params = self.setIfMissing(params,'plotStyle','rx')
 
     self.tparams = params
     self.haveMeas = False
+
+    if iPt:
+      self.tpt = iPt
+      self.haveMeas = True
+    else:
+      self.tpt = None
 
   #=============================== set ===============================
   #
@@ -101,7 +104,7 @@ class centroid(object):
   #
   def emptyState(self):
 
-    estate= State(tpt=[], haveMeas=False)
+    estate= State(tpt=np.array([]), haveMeas=False)
 
     return estate
 
@@ -109,12 +112,12 @@ class centroid(object):
   #
   # @brief  Set the state vector.
   #
-  # @param[in]  g   The desired state.
+  # @param[in]  dPt   The desired state.
   #
-  def setState(self, g):
+  def setState(self, dPt):
 
-    self.tpt = g
-    self.haveMeas = True
+    self.tpt = dPt.tpt
+    self.haveMeas = dPt.haveMeas
 
 
 
@@ -177,21 +180,14 @@ class centroid(object):
     else:
       Ip = I
 
-
+    # y,x in OpenCV
     ibin, jbin = np.nonzero(Ip)
 
+    # x,y in OpenCV
     self.tpt = np.array([np.mean(jbin), np.mean(ibin)]).reshape(-1,1)
 
     self.haveMeas = self.tpt.shape[1] > 0
 
-    #   center = transpose(size(image)*[0 1;1 0]+1)/2;
-    #  trackpoint = trackpoint - center;
-
-    # @todo
-    # Not sure if the translation is correct
-    # if (nargout == 1):
-    #   mstate = this.getState();
-    # end
     mstate = self.getState()
 
     return mstate
@@ -217,12 +213,15 @@ class centroid(object):
   #
   def displayState(self, dstate = None):
 
-    if dstate:
+    if isinstance(dstate, State):
       if dstate.haveMeas:
+        # Change to OpenCV style
         plt.plot(dstate.tpt[0,:], dstate.tpt[1,:], self.tparams.plotStyle)
     else:
       if self.haveMeas:
+        # Change to OpenCV style
         plt.plot(self.tpt[0,:], self.tpt[1,:], self.tparams.plotStyle)
+
 
 
   #========================= displayDebugState =========================
@@ -249,7 +248,7 @@ class centroid(object):
 
     # @todo
     # Need double check on this translation
-    if params is None or not isinstance(params):
+    if not isinstance(params, Params):
       params = Params()
     setattr(params, pname, pval)
     return params

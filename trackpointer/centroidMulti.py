@@ -37,7 +37,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 from skimage.measure import regionprops
-from trackpointer.centroid import centroid
+from trackpointer.centroid import centroid, State
 
 class centroidMulti(centroid):
 
@@ -95,18 +95,13 @@ class centroidMulti(centroid):
       Ip = I
 
     binReg = centroidMulti.regionProposal(Ip)
-    self.tpt =  np.array(binReg).T # from N x 2 to 2 x N
+    self.tpt = np.array(binReg).T # from N x 2 to 2 x N
 
     if len(self.tpt) == 0:
-      self.haveMeas = 0
+      self.haveMeas = False
     else:
       self.haveMeas = self.tpt.shape[1] > 0
 
-    # @todo
-    # Not sure if the translation is correct
-    # if (nargout == 1):
-    #   mstate = this.getstate();
-    # end
     mstate = self.getState()
 
     return mstate
@@ -120,34 +115,6 @@ class centroidMulti(centroid):
   def process(self, I):
 
     self.measure(I)
-
-  #============================ displayState ===========================
-  #
-  # @brief  Displays the current track pointer measurement.
-  #
-  # Assumes that the current figure to plot to is activate.  If the plot has
-  # existing elements that should remain, then hold should be enabled prior to
-  # invoking this function.
-  #
-  def displayState(self, dstate = None):
-
-    if dstate:
-      if dstate.haveMeas:
-        plt.plot(dstate.tpt[0,:], dstate.tpt[1,:], self.tparams.plotStyle)
-    else:
-      if self.haveMeas:
-        plt.plot(self.tpt[0,:], self.tpt[1,:], self.tparams.plotStyle)
-
-
-  #========================= displayDebugState =========================
-  #
-  # @brief  Displays internally stored intermediate process output.
-  #
-  # Currently, there is no intermediate output, though that might change
-  # in the future.
-  #
-  def displayDebugState(self, dbstate=None):
-    pass
 
   #========================= regionProposal =========================
   #
@@ -168,6 +135,8 @@ class centroidMulti(centroid):
 
     # Note that regionprops assumes different areas are with different labels
     # See https://stackoverflow.com/a/61591279/5269146
+
+    # Have been transferred to the OpenCV style as regionprops is from skimage
     binReg = [[i.centroid[1], i.centroid[0]] for i in regionprops(mask)]
 
     return binReg
