@@ -39,17 +39,6 @@ import cv2
 from skimage.measure import regionprops
 from trackpointer.centroid import centroid
 
-class State(object):
-
-  def __init__(self, tpt=None, haveMeas=None):
-    self.tpt = tpt
-    self.haveMeas = haveMeas
-
-class Params(object):
-
-  def __init__(self):
-    pass
-
 class centroidMulti(centroid):
 
   # ============================== centroid =============================
@@ -61,7 +50,7 @@ class centroidMulti(centroid):
   #
   def __init__(self, iPt=None, params=None):
 
-    super(centroidMulti,self).__init__(iPt,params)
+    super(centroidMulti,self).__init__(iPt, params)
 
 
   #=============================== set ===============================
@@ -118,7 +107,7 @@ class centroidMulti(centroid):
     # if (nargout == 1):
     #   mstate = this.getstate();
     # end
-    mstate = self.getstate()
+    mstate = self.getState()
 
     return mstate
 

@@ -35,12 +35,12 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from dataclasses import dataclass
 
-class State(object):
-
-  def __init__(self, tpt=None, haveMeas=None):
-    self.tpt = tpt
-    self.haveMeas = haveMeas
+@dataclass
+class State:
+  tpt: np.ndarray = np.array([])
+  haveMeas: bool = False
 
 class Params(object):
 
@@ -94,37 +94,37 @@ class centroid(object):
 
     pass
 
-  #============================= emptystate ============================
+  #============================= emptyState ============================
   #
   # @brief  Return an empty state structure.
   #
   #
-  def emptystate(self):
+  def emptyState(self):
 
     estate= State(tpt=[], haveMeas=False)
 
     return estate
 
-  #============================== setstate =============================
+  #============================== setState =============================
   #
   # @brief  Set the state vector.
   #
   # @param[in]  g   The desired state.
   #
-  def setstate(self, g):
+  def setState(self, g):
 
     self.tpt = g
     self.haveMeas = True
 
 
 
-  #============================== getstate =============================
+  #============================== getState =============================
   #
   # @brief  Return the track-pointer state.
   #
   # @param[out] tstate  The track point state structure.
   #
-  def getstate(self):
+  def getState(self):
 
     tstate = State(tpt=self.tpt, haveMeas=self.haveMeas)
 
@@ -190,9 +190,9 @@ class centroid(object):
     # @todo
     # Not sure if the translation is correct
     # if (nargout == 1):
-    #   mstate = this.getstate();
+    #   mstate = this.getState();
     # end
-    mstate = self.getstate()
+    mstate = self.getState()
 
     return mstate
 
