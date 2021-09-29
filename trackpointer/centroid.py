@@ -218,16 +218,19 @@ class centroid(object):
   # existing elements that should remain, then hold should be enabled prior to
   # invoking this function.
   #
-  def displayState(self, dstate = None):
+  def displayState(self, dstate = None, ax=None):
+
+    if ax is None:
+      ax = plt.gca()
 
     if isinstance(dstate, State):
       if dstate.haveMeas:
         # Change to OpenCV style
-        plt.plot(dstate.tpt[0,:], dstate.tpt[1,:], self.tparams.plotStyle)
+        ax.plot(dstate.tpt[0,:], dstate.tpt[1,:], self.tparams.plotStyle)
     else:
       if self.haveMeas:
         # Change to OpenCV style
-        plt.plot(self.tpt[0,:], self.tpt[1,:], self.tparams.plotStyle)
+        ax.plot(self.tpt[0,:], self.tpt[1,:], self.tparams.plotStyle)
 
 
 

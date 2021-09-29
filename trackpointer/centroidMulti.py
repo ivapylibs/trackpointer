@@ -125,8 +125,9 @@ class centroidMulti(centroid):
   #
   @ staticmethod
   def regionProposal(I):
-    mask = np.zeros_like(I)
-    cnts = cv2.findContours(I, cv2.RETR_EXTERNAL,
+    Ip = I.astype(np.uint8)
+    mask = np.zeros_like(Ip)
+    cnts = cv2.findContours(Ip, cv2.RETR_EXTERNAL,
                             cv2.CHAIN_APPROX_SIMPLE)
     # For OpenCV 4+
     cnts = cnts[0]
