@@ -32,12 +32,14 @@
 #
 #================================ centroid ===============================
 
+from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 
 from skimage.measure import regionprops
 from trackpointer.centroid import centroid
+from trackpointer.centroid import Params as cParams
 
 class State(object):
 
@@ -45,10 +47,10 @@ class State(object):
     self.tpt = tpt
     self.haveMeas = haveMeas
 
-class Params(object):
+@dataclass
+class Params(cParams):
+  improcessor: any = None 
 
-  def __init__(self):
-    pass
 
 class centroidMulti(centroid):
 
@@ -59,7 +61,7 @@ class centroidMulti(centroid):
   # @param[in]  iPt     The initial track point coordinates.
   #             params   The parameter structure.
   #
-  def __init__(self, iPt=None, params=None):
+  def __init__(self, iPt=None, params=Params()):
 
     super(centroidMulti,self).__init__(iPt,params)
 
