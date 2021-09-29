@@ -122,7 +122,7 @@ for ii in range(1000):# Loop to udpate pose and re-render.
   dI = binDet.Ip
 
   trackptr.process(dI)
-  tstate = trackptr.getstate()
+  tstate = trackptr.getState()
 
   # @todo
   # There is no setting in the trackTri01.m to enable the display of the tracker as it uses
@@ -130,10 +130,10 @@ for ii in range(1000):# Loop to udpate pose and re-render.
   # For now, we manully set the state.
   if ii==0:
     # Start tracking
-    trackptr.setstate(tstate.tpt)
+    trackptr.setState(tstate)
 
   plt.cla()
-  trackptr.displayState(tstate)
+  trackptr.displayState()
 
   plt.imshow(I, cmap='Greys')
   plt.pause(0.001)
