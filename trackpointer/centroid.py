@@ -33,19 +33,31 @@
 #
 #================================ centroid ===============================
 
+from dataclasses import dataclass
+from cv2 import data
 import numpy as np
 import matplotlib.pyplot as plt
 
 class State(object):
+  """[summary]
+
+  Args:
+      object ([type]): [description]
+  """
 
   def __init__(self, tpt=None, haveMeas=None):
     self.tpt = tpt
     self.haveMeas = haveMeas
 
+@dataclass
 class Params(object):
+  """The parameters for the centroid tracker
 
-  def __init__(self):
-    pass
+  Args:
+    plotStyle (str): The plot style from the matplotlib for the centroid. Defaults to "rx". \
+      Detailed choices see: https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html
+  """
+  plotStyle:str = "rx"
 
 class centroid(object):
 
@@ -56,13 +68,10 @@ class centroid(object):
   # @param[in]  iPt      The initial track point coordinates.
   #             params   The parameter structure.
   #
-  def __init__(self, iPt=None, params=None):
+  def __init__(self, iPt=None, params=Params()):
 
     if iPt:
       self.tpt = iPt
-
-    if params is None:
-      params = self.setIfMissing(params,'plotStyle','rx')
 
     self.tparams = params
     self.haveMeas = False
