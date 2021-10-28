@@ -190,10 +190,13 @@ class centroid(object):
     # y,x in OpenCV
     ibin, jbin = np.nonzero(Ip)
 
-    # x,y in OpenCV
-    self.tpt = np.array([np.mean(jbin), np.mean(ibin)]).reshape(-1,1)
-
-    self.haveMeas = self.tpt.shape[1] > 0
+    if ibin.size == 0:
+      self.tpt = None
+      self.haveMeas = False
+    else:
+      # x,y in OpenCV
+      self.tpt = np.array([np.mean(jbin), np.mean(ibin)]).reshape(-1,1)
+      self.haveMeas = True
 
     mstate = self.getState()
 
