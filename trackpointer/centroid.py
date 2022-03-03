@@ -33,8 +33,6 @@
 #
 #================================ centroid ===============================
 
-from dataclasses import dataclass
-from cv2 import data
 import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import dataclass

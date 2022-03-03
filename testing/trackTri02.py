@@ -35,7 +35,7 @@ import operator
 import numpy as np
 import matplotlib.pyplot as plt
 
-from fakeTriangle import fakeTriangle
+from trackpointer.utils.fakeTriangle import fakeTriangle
 import Lie.group.SE2.Homog
 import improcessor.basic as improcessor
 import detector.inImage as detector
