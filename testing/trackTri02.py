@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 #=============================== trackTri02 ==============================
 #
 # @brief    Code to create an image sequence of multiple objects moving along a

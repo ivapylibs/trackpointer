@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 #=============================== trackTri01 ==============================
 #
 # @brief    Code to create an image sequence of a rigid body moving along a
