@@ -33,8 +33,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from fakeTriangle import fakeTriangle
+from trackpointer.utils.fakeTriangle import fakeTriangle
 import Lie.group.SE2.Homog
+
 #==[1] Specify the marker geometry on the rigid body, and other related
 #       parameters. Instantiate the simulated image generator.
 #

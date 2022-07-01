@@ -35,17 +35,22 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from dataclasses import dataclass
 
-class State(object):
+@dataclass
+class State:
+  tpt: np.ndarray = np.array([])
+  haveMeas: bool = False
 
-  def __init__(self, tpt=None, haveMeas=None):
-    self.tpt = tpt
-    self.haveMeas = haveMeas
-
+@dataclass
 class Params(object):
+  """The parameters for the centroid tracker
 
-  def __init__(self):
-    pass
+  Args:
+    plotStyle (str): The plot style from the matplotlib for the centroid. Defaults to "rx". \
+      Detailed choices see: https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html
+  """
+  plotStyle:str = "rx"
 
 class centroid(object):
 
@@ -56,16 +61,19 @@ class centroid(object):
   # @param[in]  iPt      The initial track point coordinates.
   #             params   The parameter structure.
   #
-  def __init__(self, iPt=None, params=None):
+  def __init__(self, iPt=None, params=Params()):
 
-    if iPt:
-      self.tpt = iPt
-
-    if params is None:
+    if not isinstance(params, Params):
       params = self.setIfMissing(params,'plotStyle','rx')
 
     self.tparams = params
     self.haveMeas = False
+
+    if iPt:
+      self.tpt = iPt
+      self.haveMeas = True
+    else:
+      self.tpt = None
 
   #=============================== set ===============================
   #
@@ -94,37 +102,37 @@ class centroid(object):
 
     pass
 
-  #============================= emptystate ============================
+  #============================= emptyState ============================
   #
   # @brief  Return an empty state structure.
   #
   #
-  def emptystate(self):
+  def emptyState(self):
 
-    estate= State(tpt=[], haveMeas=False)
+    estate= State(tpt=np.array([]), haveMeas=False)
 
     return estate
 
-  #============================== setstate =============================
+  #============================== setState =============================
   #
   # @brief  Set the state vector.
   #
-  # @param[in]  g   The desired state.
+  # @param[in]  dPt   The desired state.
   #
-  def setstate(self, g):
+  def setState(self, dPt):
 
-    self.tpt = g
-    self.haveMeas = True
+    self.tpt = dPt.tpt
+    self.haveMeas = dPt.haveMeas
 
 
 
-  #============================== getstate =============================
+  #============================== getState =============================
   #
   # @brief  Return the track-pointer state.
   #
   # @param[out] tstate  The track point state structure.
   #
-  def getstate(self):
+  def getState(self):
 
     tstate = State(tpt=self.tpt, haveMeas=self.haveMeas)
 
@@ -177,22 +185,18 @@ class centroid(object):
     else:
       Ip = I
 
-
+    # y,x in OpenCV
     ibin, jbin = np.nonzero(Ip)
 
-    self.tpt = np.array([np.mean(jbin), np.mean(ibin)]).reshape(-1,1)
+    if ibin.size == 0:
+      self.tpt = None
+      self.haveMeas = False
+    else:
+      # x,y in OpenCV
+      self.tpt = np.array([np.mean(jbin), np.mean(ibin)]).reshape(-1,1)
+      self.haveMeas = True
 
-    self.haveMeas = self.tpt.shape[1] > 0
-
-    #   center = transpose(size(image)*[0 1;1 0]+1)/2;
-    #  trackpoint = trackpoint - center;
-
-    # @todo
-    # Not sure if the translation is correct
-    # if (nargout == 1):
-    #   mstate = this.getstate();
-    # end
-    mstate = self.getstate()
+    mstate = self.getState()
 
     return mstate
 
@@ -215,14 +219,20 @@ class centroid(object):
   # existing elements that should remain, then hold should be enabled prior to
   # invoking this function.
   #
-  def displayState(self, dstate = None):
+  def displayState(self, dstate = None, ax=None):
 
-    if dstate:
+    if ax is None:
+      ax = plt.gca()
+
+    if isinstance(dstate, State):
       if dstate.haveMeas:
-        plt.plot(dstate.tpt[0,:], dstate.tpt[1,:], self.tparams.plotStyle)
+        # Change to OpenCV style
+        ax.plot(dstate.tpt[0,:], dstate.tpt[1,:], self.tparams.plotStyle)
     else:
       if self.haveMeas:
-        plt.plot(self.tpt[0,:], self.tpt[1,:], self.tparams.plotStyle)
+        # Change to OpenCV style
+        ax.plot(self.tpt[0,:], self.tpt[1,:], self.tparams.plotStyle)
+
 
 
   #========================= displayDebugState =========================
@@ -249,7 +259,7 @@ class centroid(object):
 
     # @todo
     # Need double check on this translation
-    if params is None or not isinstance(params):
+    if not isinstance(params, Params):
       params = Params()
     setattr(params, pname, pval)
     return params
