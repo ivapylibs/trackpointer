@@ -200,6 +200,21 @@ class centroid(object):
 
     return mstate
 
+  #============================== correct ==============================
+  #
+  # @brief  Correct.  This is a no-op.
+  #
+  def correct(self):
+    pass
+
+  #=============================== adapt ===============================
+  #
+  # @brief  Adapt.  This is a no-op.
+  #
+  def adapt(self):
+    pass
+
+
   #============================== process ==============================
   #
   # @brief  Process the input image according to centroid tracking.

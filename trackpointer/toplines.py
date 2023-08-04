@@ -157,7 +157,7 @@ class fromBottom(tp.centroid):
     else:
       Ip = I
 
-    #--[1] Get the top-most non-empty row and ones before it. Compute row
+    #--[1] Get the bottom-most non-empty row and ones before it. Compute row
     #      average of data.
     #      
     imsize   = np.shape(Ip)
@@ -191,6 +191,37 @@ class fromBottom(tp.centroid):
 
     mstate = self.getState()
     return mstate
+
+
+
+def tipFromBottom(Ib):
+
+  #--[1] Compute row-wise sum of binary mask.
+  imsize   = np.shape(Ib)
+  hitCount = np.sum(Ib, axis=1)
+  hitInds  = np.argwhere(hitCount)
+
+  if (np.size(hitInds) == 0):     # If nothing, then no measurement.
+
+    return None
+
+  else:
+
+    #--[2] If measurement, then get the bottom-most non-empty row.
+    #      
+    botInd   = np.max(hitInds)
+
+    #--[3] Get the column median for the bottom row.
+    #
+    Irow = Ib[botInd,:]
+    jind = np.flatnonzero(Irow)          # x in OpenCV
+
+    medi = int(np.size(jind)/2)
+
+    #--[4] Return the value.
+    tp = np.array([jind[medi], botInd]).reshape(-1,1)
+
+    return tp
 
 #
 #================================ toplines ===============================

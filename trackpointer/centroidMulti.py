@@ -35,7 +35,8 @@
 import numpy as np
 import cv2
 
-from skimage.measure import regionprops
+import skimage.morphology as morph
+from skimage.measure import regionprops, label
 from trackpointer.centroid import centroid, State, Params
 
 class centroidMulti(centroid):
@@ -91,9 +92,14 @@ class centroidMulti(centroid):
     if hasattr(self.tparams, 'improcessor') and self.tparams.improcessor:
       Ip = self.tparams.improcessor.apply(I)
     else:
-      Ip = I
+      Ip = np.copy(I)
 
-    binReg = centroidMulti.regionProposal(Ip)
+    #binReg = centroidMulti.regionProposal(Ip)
+    #self.tpt = np.array(binReg).T # from N x 2 to 2 x N
+
+    morph.remove_small_objects(Ip, 64, 1, out = Ip)
+    Il = label(Ip)
+    binReg = [[i.centroid[1], i.centroid[0]] for i in regionprops(Il)]
     self.tpt = np.array(binReg).T # from N x 2 to 2 x N
 
     if len(self.tpt) == 0:
@@ -123,6 +129,8 @@ class centroidMulti(centroid):
   #
   @ staticmethod
   def regionProposal(I):
+    # [08/03 PAV: Code below is horrendous.  What is purpose here? There are better methods.]
+    # [             Even the stackoverflow link below has one.                              ]
     Ip = I.astype(np.uint8)
     mask = np.zeros_like(Ip)
     cnts = cv2.findContours(Ip, cv2.RETR_EXTERNAL,
