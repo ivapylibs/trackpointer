@@ -36,14 +36,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
+from detector.Configuration import AlgConfig
 
 @dataclass
 class State:
   tpt: np.ndarray = np.array([])
   haveMeas: bool = False
 
-@dataclass
-class Params(object):
+class CfgCentroid(AlgConfig):
   """The parameters for the centroid tracker
 
   Args:
@@ -51,6 +51,54 @@ class Params(object):
       Detailed choices see: https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html
   """
   plotStyle:str = "rx"
+
+#
+#---------------------------------------------------------------------------
+#====================== Configuration Node : Centroid ======================
+#---------------------------------------------------------------------------
+#
+
+class CfgCentroind(AlgConfig):
+  '''!
+  @brief  Configuration setting specifier for centroidMulti.
+  '''
+  #============================= __init__ ============================
+  #
+  '''!
+  @brief        Constructor of configuration instance.
+
+  @param[in]    cfg_files   List of config files to load to merge settings.
+  '''
+  def __init__(self, init_dict=None, key_list=None, new_allowed=True):
+
+    if (init_dict == None):
+      init_dict = CfgCentroid.get_default_settings()
+
+    super().__init__(init_dict, key_list, new_allowed)
+
+    # self.merge_from_lists(XX)
+
+  #========================= get_default_settings ========================
+  #
+  # @brief    Recover the default settings in a dictionary.
+  #
+  @staticmethod
+  def get_default_settings():
+    '''!
+    @brief  Defines most basic, default settings for RealSense D435.
+
+    @param[out] default_dict  Dictionary populated with minimal set of
+                              default settings.
+    '''
+    default_dict = dict(plotStyle = 'rx')
+    return default_dict
+
+
+#
+#---------------------------------------------------------------------------
+#================================= Centroid ================================
+#---------------------------------------------------------------------------
+#
 
 class centroid(object):
 
@@ -61,10 +109,7 @@ class centroid(object):
   # @param[in]  iPt      The initial track point coordinates.
   #             params   The parameter structure.
   #
-  def __init__(self, iPt=None, params=Params()):
-
-    if not isinstance(params, Params):
-      params = self.setIfMissing(params,'plotStyle','rx')
+  def __init__(self, iPt=None, params=CfgCentroid()):
 
     self.tparams = params
     self.haveMeas = False
@@ -245,8 +290,8 @@ class centroid(object):
         ax.plot(dstate.tpt[0,:], dstate.tpt[1,:], self.tparams.plotStyle)
     else:
       if self.haveMeas:
-        # Change to OpenCV style
-        ax.plot(self.tpt[0,:], self.tpt[1,:], self.tparams.plotStyle)
+        # Change to OpenCV style WHICH IS WHICH?????
+        ax.plot(self.tpt[1,:], self.tpt[0,:], self.tparams.plotStyle)
 
 
 

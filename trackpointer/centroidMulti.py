@@ -1,4 +1,4 @@
-#================================ centroidMulti ===============================
+#============================== centroidMulti ==============================
 #
 # @brief    Used to track the centroid of multiple (binarized) objects.
 #
@@ -14,7 +14,7 @@
 # the binarization + tracking combination. It will usually then become a
 # ``perceiver`` object.
 #
-#================================ centroidMulti ===============================
+#============================== centroidMulti ==============================
 
 #
 # @file     centroidMulti.m
@@ -28,29 +28,100 @@
 #!  set indent to 2 spaces.
 #!  do not indent function code.
 #!  set tab to 4 spaces with conversion to spaces.
+#!  
 #
 #
-#================================ centroid ===============================
+#============================== centroidMulti ==============================
 
 import numpy as np
 import cv2
 
 import skimage.morphology as morph
 from skimage.measure import regionprops, label
-from trackpointer.centroid import centroid, State, Params
+from trackpointer.centroid import centroid, State, CfgCentroid
+
+
+
+#
+#---------------------------------------------------------------------------
+#==================== Configuration Node : centroidMulti ===================
+#---------------------------------------------------------------------------
+#
+
+class CfgCentMulti(CfgCentroid):
+  '''!
+  @brief  Configuration setting specifier for centroidMulti.
+
+  minArea   - Minimum area acceptable (anything less is not a target).
+  maxArea   - Maximum area acceptable (anything more is not a target).
+  measProps - Flag to determine whether to keep the region properties.
+  keepLabel - Flag to keep the label image, in case needed later.
+
+  '''
+  #============================= __init__ ============================
+  #
+  '''!
+  @brief        Constructor of configuration instance.
+
+  @param[in]    cfg_files   List of config files to load to merge settings.
+  '''
+  def __init__(self, init_dict=None, key_list=None, new_allowed=True):
+
+    if (init_dict == None):
+      init_dict = CfgCentMulti.get_default_settings()
+
+    super().__init__(init_dict, key_list, new_allowed)
+
+    # self.merge_from_lists(XX)
+
+  #========================= get_default_settings ========================
+  #
+  # @brief    Recover the default settings in a dictionary.
+  #
+  @staticmethod
+  def get_default_settings():
+    '''!
+    @brief  Defines most basic, default settings for RealSense D435.
+
+    @param[out] default_dict  Dictionary populated with minimal set of
+                              default settings.
+    '''
+    default_dict = dict(minArea = 0, maxArea = float('inf'), \
+                        measProps = False, keepLabel = False)
+    return default_dict
+
+#========================== builtForPuzzles =========================
+#
+#
+  @staticmethod
+  def builtForLearning():
+    puzzleCfg = CfgCentMulti();
+    puzzleCfg.minArea = 60
+    puzzleCfg.maxArea = 300
+    return puzzleCfg
+
+
+#
+#---------------------------------------------------------------------------
+#============================== centroidMulti ==============================
+#---------------------------------------------------------------------------
+#
 
 class centroidMulti(centroid):
 
-  # ============================== centroid =============================
+  #============================ centroidMulti ============================
   #
   # @brief      Centroid track-pointer constructor.
   #
   # @param[in]  iPt     The initial track point coordinates.
   #             params   The parameter structure.
   #
-  def __init__(self, iPt=None, params=Params()):
+  def __init__(self, iPt=None, params=CfgCentMulti()):
 
     super(centroidMulti,self).__init__(iPt, params)
+
+    self.labelIm    = None
+    self.trackProps = None
 
 
   #=============================== set ===============================
@@ -94,12 +165,29 @@ class centroidMulti(centroid):
     else:
       Ip = np.copy(I)
 
+    # [08/30 PAV: CODE BELOW COMMENTED OUT DUE TO BEING SLOW AND KINDA CRAPPY.]
     #binReg = centroidMulti.regionProposal(Ip)
     #self.tpt = np.array(binReg).T # from N x 2 to 2 x N
 
     morph.remove_small_objects(Ip, 64, 1, out = Ip)
     Il = label(Ip)
-    binReg = [[i.centroid[1], i.centroid[0]] for i in regionprops(Il)]
+
+    if self.tparams.keepLabel:
+      self.labelImage = Il
+
+    if self.tparams.measProps:
+      self.trackProps = regionprops(Il)
+
+      # @todo   Address the maxArea option.
+      binReg = []
+      for ri in self.trackProps:
+        if (ri.area < self.tparams.maxArea):
+          binReg.append([ri.centroid[1], ri.centroid[0]])
+    else:
+      binReg = []
+      for ri in regionprops(Il):
+        binReg.append([ri.centroid[1], ri.centroid[0]])
+
     self.tpt = np.array(binReg).T # from N x 2 to 2 x N
 
     if len(self.tpt) == 0:
