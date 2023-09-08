@@ -166,8 +166,12 @@ class centroidMulti(centroid):
       Ip = np.copy(I)
 
     # [08/30 PAV: CODE BELOW COMMENTED OUT DUE TO BEING SLOW AND KINDA CRAPPY.]
+    # [09/07 PAV: Also seems redundant since it runs regionprops anyhow.
+    #             Looks like uses openCV for labels, but method is no good.   ]
     #binReg = centroidMulti.regionProposal(Ip)
     #self.tpt = np.array(binReg).T # from N x 2 to 2 x N
+
+    # Link to scikit [region props](https://scikit-image.org/docs/stable/api/skimage.measure.html#skimage.measure.regionprops)
 
     morph.remove_small_objects(Ip, 64, 1, out = Ip)
     Il = label(Ip)
@@ -229,6 +233,7 @@ class centroidMulti(centroid):
     for idx, cnt in enumerate(cnts):
       cv2.drawContours(mask, cnt, -1, (idx+1), 1)
 
+    # [ 09/07 PAV: Above code can be implemented with scikit ``labels``. ]
     # Note that regionprops assumes different areas are with different labels
     # See https://stackoverflow.com/a/61591279/5269146
 
