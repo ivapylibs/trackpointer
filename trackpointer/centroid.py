@@ -291,7 +291,7 @@ class centroid(object):
     else:
       if self.haveMeas:
         # Change to OpenCV style WHICH IS WHICH?????
-        ax.plot(self.tpt[1,:], self.tpt[0,:], self.tparams.plotStyle)
+        ax.plot(self.tpt[0,:], self.tpt[1,:], self.tparams.plotStyle)
 
 
 
