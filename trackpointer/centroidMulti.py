@@ -87,6 +87,7 @@ class CfgCentMulti(CfgCentroid):
                               default settings.
     '''
     default_dict = dict(minArea = 0, maxArea = float('inf'), \
+                        regConn = 1, \
                         measProps = False, keepLabel = False)
     return default_dict
 
@@ -173,8 +174,11 @@ class centroidMulti(centroid):
 
     # Link to scikit [region props](https://scikit-image.org/docs/stable/api/skimage.measure.html#skimage.measure.regionprops)
 
-    morph.remove_small_objects(Ip, 64, 1, out = Ip)
-    Il = label(Ip)
+    if (self.tparams.minArea > 0):
+      morph.remove_small_objects(Ip, self.tparams.minArea, 1, out = Ip)
+
+    (Il, nl) = label(Ip, None, True, self.tparams.regConn)
+    # @todo Consider how might use nl return value.
 
     if self.tparams.keepLabel:
       self.labelImage = Il
