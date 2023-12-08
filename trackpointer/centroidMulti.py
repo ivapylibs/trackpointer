@@ -91,21 +91,15 @@ class CfgCentMulti(CfgCentroid):
                         measProps = False, keepLabel = False)
     return default_dict
 
-#========================== builtForPuzzles =========================
-#
-#
-  @staticmethod
-  def builtForLearning():
-    puzzleCfg = CfgCentMulti();
-    puzzleCfg.minArea = 60
-    puzzleCfg.maxArea = 300
-    return puzzleCfg
-
 
 #
 #---------------------------------------------------------------------------
 #============================== centroidMulti ==============================
 #---------------------------------------------------------------------------
+#
+
+# @todo Consider packaging into the centroid.py file.  That is more
+#       consistent with python packaging style if I am not mistaken.
 #
 
 class centroidMulti(centroid):
@@ -114,8 +108,15 @@ class centroidMulti(centroid):
   #
   # @brief      Centroid track-pointer constructor.
   #
-  # @param[in]  iPt     The initial track point coordinates.
-  #             params   The parameter structure.
+  # @param[in]  params  Parameter settings.
+  # @param[in]  iPt     Initial track point coordinates.
+  #
+  #
+  # @todo   Should swap order if initial point is optional but
+  #         params have non-trivial definition if not given.
+  #         Really, should have a None check instead.  Why was
+  #         this particular choice made? Seems to lack flexibility
+  #         or is it related to best practice?
   #
   def __init__(self, iPt=None, params=CfgCentMulti()):
 
