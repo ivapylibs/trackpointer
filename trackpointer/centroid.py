@@ -39,7 +39,7 @@ from dataclasses import dataclass
 from detector.Configuration import AlgConfig
 
 @dataclass
-class State:
+class TrackState:
   tpt: np.ndarray = np.array([])
   haveMeas: bool = False
 
@@ -154,7 +154,7 @@ class centroid(object):
   #
   def emptyState(self):
 
-    estate= State(tpt=np.array([]), haveMeas=False)
+    estate= TrackState(tpt=np.array([]), haveMeas=False)
 
     return estate
 
@@ -170,7 +170,6 @@ class centroid(object):
     self.haveMeas = dPt.haveMeas
 
 
-
   #============================== getState =============================
   #
   # @brief  Return the track-pointer state.
@@ -179,8 +178,7 @@ class centroid(object):
   #
   def getState(self):
 
-    tstate = State(tpt=self.tpt, haveMeas=self.haveMeas)
-
+    tstate = TrackState(tpt=self.tpt, haveMeas=self.haveMeas)
     return tstate
 
   #=============================== offset ==============================
@@ -268,7 +266,8 @@ class centroid(object):
   #
   def process(self, I):
 
-    self.measure(I)
+    tState = self.measure(I)
+    return tState
 
 
   #============================ displayState ===========================
