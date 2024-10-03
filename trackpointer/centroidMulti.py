@@ -38,7 +38,7 @@ import cv2
 
 import skimage.morphology as morph
 from skimage.measure import regionprops, label
-from trackpointer.centroid import centroid, State, CfgCentroid
+from trackpointer.centroid import centroid, TrackState, CfgCentroid
 
 
 
