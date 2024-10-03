@@ -283,7 +283,7 @@ class centroid(object):
     if ax is None:
       ax = plt.gca()
 
-    if isinstance(dstate, State):
+    if isinstance(dstate, TrackState):
       if dstate.haveMeas:
         # Change to OpenCV style
         ax.plot(dstate.tpt[0,:], dstate.tpt[1,:], self.tparams.plotStyle)
