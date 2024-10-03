@@ -304,6 +304,21 @@ class centroid(object):
   def displayDebugState(self, dbstate=None):
     pass
 
+
+  #============================= display_cv ============================
+  #
+  # @brief  Use opencv display routines to plot the trackpoint along with
+  #         the given image.
+  #
+  def display_cv(self, I, ratio = None, window_name="track point "):
+  
+    import ivapy.display_cv as display
+
+    if (self.haveMeas):
+      display.trackpoint(I, self.tpt, ratio, window_name)
+    else:
+      display.rgb(I, ratio, window_name)
+
   #========================= setIfMissing =========================
   #
   #  @brief Set missing parameters in the registration parameters structure.
