@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #=============================== fakeTri02 ===============================
 #
 # @brief    Code to create an image sequence of a rigid body moving along a
