@@ -69,7 +69,7 @@ plt.ion()
 I = ftarg.render()
 plt.imshow(I, cmap='Greys')
 
-for ii in range(1000):# Loop to udpate pose and re-render.
+for ii in range(25):# Loop to udpate pose and re-render.
   theta = np.pi/50
   R = Lie.group.SE2.Homog.rotationMatrix(theta)
   g = g * Lie.group.SE2.Homog(x=np.array([[0],[0]]), R=R)
