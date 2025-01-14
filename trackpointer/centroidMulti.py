@@ -21,8 +21,10 @@
 #
 # @author   Patricio A. Vela,       pvela@gatech.edu
 #           Yunzhi Lin,             yunzhi.lin@gatech.edu
+#           Nihit Agarwal           nagarwal90@gatech.edu
 # @date     2020/11/10  [created]
 #           2021/07/21  [modified]
+#           2024/12/10  [modified]
 #
 #!NOTE:
 #!  set indent to 2 spaces.
@@ -38,8 +40,8 @@ import cv2
 
 import skimage.morphology as morph
 from skimage.measure import regionprops, label
+from scipy.signal import convolve2d
 from trackpointer.centroid import centroid, TrackState, CfgCentroid
-
 
 
 #
@@ -184,20 +186,49 @@ class centroidMulti(centroid):
     if self.tparams.keepLabel:
       self.labelImage = Il
 
-    if self.tparams.measProps:
-      self.trackProps = regionprops(Il)
+    regProps = regionprops(Il)
 
-      # @todo   Address the maxArea option.
+    if self.tparams.measProps:
+      self.trackProps = regProps
       binReg = []
       for ri in self.trackProps:
         if (ri.area < self.tparams.maxArea):
           binReg.append([ri.centroid[1], ri.centroid[0]])
     else:
       binReg = []
-      for ri in regionprops(Il):
+      for ri in regProps:
         binReg.append([ri.centroid[1], ri.centroid[0]])
 
     self.tpt = np.array(binReg).T # from N x 2 to 2 x N
+
+    # Compute convolution scores
+    binImg = Ip.astype(int)
+    kernel = np.ones((10,10))
+    output_scores = convolve2d(binImg, kernel, mode='same', boundary='fill', fillvalue=0)
+    suc_target_loc = []
+
+    for ri in self.trackProps:
+      if (ri.area < self.tparams.maxArea):
+        # Find suc cup target locations
+        if ri.area > self.tparams.minArea:
+          max_val = 0
+          max_val_loc = []
+          for loc in ri.coords:
+            if output_scores[loc[0]][loc[1]] > max_val:
+              max_val = output_scores[loc[0]][loc[1]]
+              max_val_loc = [loc]
+            elif output_scores[loc[0]][loc[1]] == max_val:
+              max_val_loc.append(loc)
+          dist = lambda row, col: (row - ri.centroid[0])**2 + (col - ri.centroid[1])**2
+          minDist = None
+          target = None
+          for loc in max_val_loc:
+              d = dist(loc[0], loc[1])
+              if minDist == None or d < minDist:
+                  minDist = d
+                  target = loc
+          suc_target_loc.append(target)
+    self.suc_targets = suc_target_loc
 
     if len(self.tpt) == 0:
       self.haveMeas = False
