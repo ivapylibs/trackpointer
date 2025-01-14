@@ -207,7 +207,7 @@ class centroidMulti(centroid):
     output_scores = convolve2d(binImg, kernel, mode='same', boundary='fill', fillvalue=0)
     suc_target_loc = []
 
-    for ri in self.trackProps:
+    for ri in regProps:
       if (ri.area < self.tparams.maxArea):
         # Find suc cup target locations
         if ri.area > self.tparams.minArea:
