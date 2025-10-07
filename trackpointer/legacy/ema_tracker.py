@@ -11,6 +11,7 @@ class Track:
     landmarks: np.ndarray
     palm: np.ndarray | None
     fingers: np.ndarray | None
+    #centroid: np.ndarray | None
     present: bool
 
 class EMA:
