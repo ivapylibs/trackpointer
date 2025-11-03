@@ -1,8 +1,8 @@
+# trackpointer/trackpointer/hand_tracker.py
 from dataclasses import dataclass
 from typing import List
 import numpy as np
 from detector.detector.types import HandOutput
-from .ema import EMA
 
 @dataclass
 class HandTrack:
@@ -12,21 +12,19 @@ class HandTrack:
     landmarks: np.ndarray  # (21,3)
 
 class HandLandmarksTracker:
-    def __init__(self, alpha=0.4):
-        self.filters = {"left": EMA(alpha), "right": EMA(alpha)}
+    """
+    Association-only tracker:
+    - No EMA (filtering now lives in perceiver).
+    - Does not compute or change features; just forwards detector outputs.
+    """
+    def __init__(self):
+        pass
+
     def update(self, dets: List[HandOutput]) -> List[HandTrack]:
-        out = []
-        seen = set()
+        out: List[HandTrack] = []
         for d in dets:
-            f = self.filters[d.label]
             if d.present:
-                seen.add(d.label)
-                sm = f(d.landmarks)
-                out.append(HandTrack(d.label, True, d.score, sm))
+                out.append(HandTrack(d.label, True, d.score, d.landmarks))
             else:
-                f.reset()
                 out.append(HandTrack(d.label, False, np.nan, d.landmarks))
-        for k in ("left","right"):
-            if k not in seen:
-                self.filters[k].reset()
         return out
