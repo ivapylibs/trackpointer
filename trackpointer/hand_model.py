@@ -47,6 +47,7 @@ def solve_hand_pnp_from_landmarks(
     landmarks_norm: np.ndarray,
     image_shape: tuple[int, int],
     K: np.ndarray | None = None,
+    dist_coeffs: np.ndarray | None = None,
 ) -> tuple[bool, np.ndarray | None, np.ndarray | None]:
     """
     landmarks_norm: (21, 3) or (21, 2) normalized in [0,1] coords.
@@ -90,8 +91,11 @@ def solve_hand_pnp_from_landmarks(
                       [0.0, f, cy],
                       [0.0, 0.0, 1.0]], dtype=np.float32)
 
-    # Use explicit zero distortion for consistency
-    distCoeffs = np.zeros((5, 1), dtype=np.float32)
+    # Use provided distortion if available; otherwise assume zero distortion
+    if dist_coeffs is None:
+        distCoeffs = np.zeros((5, 1), dtype=np.float32)
+    else:
+        distCoeffs = np.asarray(dist_coeffs, dtype=np.float32).reshape(-1, 1)
 
     # Run PnP (ITERATIVE is fine; can add refinement later)
     success, rvec, tvec = cv2.solvePnP(
@@ -114,6 +118,7 @@ def compute_pick_pose_camera(
     landmarks_norm: np.ndarray,
     image_shape: tuple[int, int],
     K: np.ndarray | None = None,
+    dist_coeffs: np.ndarray | None = None,
 ) -> tuple[bool, np.ndarray | None, np.ndarray | None]:
     """
     High-level helper:
@@ -127,7 +132,7 @@ def compute_pick_pose_camera(
         pick_cam: (3,) position in camera frame or None
         axis_cam: (3,) direction in camera frame or None
     """
-    success, R, t = solve_hand_pnp_from_landmarks(landmarks_norm, image_shape, K)
+    success, R, t = solve_hand_pnp_from_landmarks(landmarks_norm, image_shape, K, dist_coeffs)
     if not success or R is None or t is None:
         return False, None, None
 
