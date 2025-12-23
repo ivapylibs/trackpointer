@@ -24,6 +24,8 @@ _FEATURE_KEY: Dict[str, str] = {
 }
 
 
+
+
 class APITrackpointerAdapter:
     """
     Adapter to expose legacy trackers under the new API:
@@ -36,7 +38,7 @@ class APITrackpointerAdapter:
     - Packs the tracker outputs into a Tracks object with one primary payload key
     """
 
-    def __init__(self, tracker_type: str = "hand", **tracker_kwargs: Any) -> None:
+    def __init__(self, tracker_type: str = "hand", cfg: dict | None = None, **tracker_kwargs: Any) -> None:
         if tracker_type not in _FEATURE_KEY:
             raise ValueError(f"Unknown tracker_type '{tracker_type}'. Valid: {list(_FEATURE_KEY.keys())}")
         self.tracker_type = tracker_type
@@ -53,8 +55,119 @@ class APITrackpointerAdapter:
         # ---- add this alias so update() and debug lines can use a single name
         self.inner = self._trk
 
-        # (optional) one-time sanity print
-        # print("[APITrackpointerAdapter] inner =", type(self.inner).__name__)
+        from trackpointer.trackpointer.calibration import MediaPoseCalibration
+        self._calib = MediaPoseCalibration.from_cfg(cfg or {})
+        self._cfg = cfg or {}
+        print("[APITrackpointerAdapter]", self._calib.summary())
+
+
+
+    # Unified helper: PnP + geometric fallback + pinch metrics
+    # ------------------------------------------------------------
+    def _add_pick_fields_inplace(
+        self,
+        item: Dict[str, Any],
+        image_shape: tuple[int, int] | None,
+    ) -> None:
+        """
+        Add a standardized 'pick' dict to the track item.
+
+        item["pick"] has the form:
+            {
+                "frame": "camera" or "normalized",
+                "pos": np.ndarray,   # (3,) if camera, (2,) if normalized
+                "axis": np.ndarray,  # (3,) or (2,)
+                "distance": float | None,
+                "pinch_dist": float,
+                "pinch_ratio": float,
+                "is_picking": bool,
+            }
+        """
+        landmarks = item.get("landmarks", None)
+        if landmarks is None:
+            return
+        
+        if not self._calib.pick_enabled:
+            return
+
+        L = np.asarray(landmarks, dtype=np.float32)
+        if L.ndim != 2:
+            return
+
+        # allow (N,2) or (N,3); always keep a 2D normalized view for pinch
+        if L.shape[1] == 2:
+            L_xy = L
+        elif L.shape[1] >= 2:
+            L_xy = L[:, :2]
+        else:
+            return
+
+        # ---- pinch geometry in normalized coords ----
+        i_thumb, i_index = self._calib.pinch_landmarks
+        i_wrist, i_mid   = self._calib.axis_pair
+
+        if (
+            i_thumb >= L_xy.shape[0] or i_index >= L_xy.shape[0]
+            or i_wrist >= L_xy.shape[0] or i_mid >= L_xy.shape[0]
+        ):
+            return
+
+        thumb_xy = L_xy[i_thumb]
+        index_xy = L_xy[i_index]
+        wrist_xy = L_xy[i_wrist]
+        mid_xy   = L_xy[i_mid]
+
+
+        pinch_vec  = thumb_xy - index_xy
+        pinch_dist = float(np.linalg.norm(pinch_vec))
+
+        hand_axis_xy = mid_xy - wrist_xy
+        hand_scale   = float(np.linalg.norm(hand_axis_xy))
+        if hand_scale > 1e-6:
+            pinch_ratio = pinch_dist / hand_scale
+        else:
+            pinch_ratio = 1.0
+
+        is_picking = bool(pinch_ratio < self._calib.pinch_ratio_thresh)
+
+        # default fields (fallback: normalized frame)
+        frame_name = "normalized"
+        pos        = 0.5 * (thumb_xy + index_xy)          # (2,)
+        axis       = np.zeros_like(hand_axis_xy)
+        if hand_scale > 1e-6:
+            axis = hand_axis_xy / hand_scale
+
+        distance = None
+
+        # ---- try PnP if we have image size ----
+        if image_shape is not None and self._calib.pnp_enabled:
+            K = self._calib.get_K(image_shape)
+            from trackpointer.trackpointer.hand_model import compute_pick_pose_camera
+
+            success, pick_cam, axis_cam = compute_pick_pose_camera(
+                landmarks_norm=L,          # uses xy internally
+                image_shape=image_shape,
+                K=K,
+            )
+            if success and pick_cam is not None and axis_cam is not None:
+                frame_name = "camera"
+                pos        = np.asarray(pick_cam, dtype=np.float32)   # (3,)
+                axis       = np.asarray(axis_cam, dtype=np.float32)   # (3,)
+                distance   = float(np.linalg.norm(pick_cam))
+
+        item["pick"] = {
+            "frame": frame_name,
+            "pos":   pos,
+            "axis":  axis,
+            "distance": distance,
+            "pinch_dist":  pinch_dist,
+            "pinch_ratio": pinch_ratio,
+            "is_picking":  is_picking,
+        }
+
+
+
+
 
     # --- New API ---
     def update(self, detections: Detections, timestamp: Optional[float] = None) -> Tracks:
@@ -62,6 +175,13 @@ class APITrackpointerAdapter:
         Convert Detections -> [HandOutput, HandOutput], call legacy tracker.update(),
         then pack result into Tracks(items=[...], meta={...}).
         """
+        H = detections.meta.get("image_height", None)
+        W = detections.meta.get("image_width", None)
+        image_shape = (H, W) if (H is not None and W is not None) else None
+        #print("[TPA] image_height:", H, "image_width:", W, "image_shape:", image_shape)
+
+
+
         # 1) Build [left, right] HandOutput from detections (normalized coordinates)
         hands_lr: List[HandOutput] = self._detections_to_hands_lr(detections)
 
@@ -105,16 +225,23 @@ class APITrackpointerAdapter:
                 except Exception:
                     pass
 
+            # ---- NEW: add pick fields for hand tracker ----
+            #if self.tracker_type == "hand":
+                #self._add_pick_fields_inplace(item, image_shape)
+
             items.append(item)
 
         meta = {
             "timestamp": timestamp,
             "tracker": self.tracker_type,
             "num_tracks": len(items),
+            "image_height": H,
+            "image_width": W,
+            "image_shape": image_shape
         }
-        if items:
-            print("TRK_CLASS:", type(self.inner).__name__)
-            print("DICT_KEYS_0:", list(items[0].keys()))
+        #if items:
+            #print("TRK_CLASS:", type(self.inner).__name__)
+            #print("DICT_KEYS_0:", list(items[0].keys()))
         return Tracks(items=items, meta=meta)
 
     def reset(self) -> None:
