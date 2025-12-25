@@ -4,7 +4,7 @@ from typing import Optional, List, Dict, Any, Tuple
 import numpy as np
 
 # Phase-1 types
-from perceiver.perceiver.types import Detections, Tracks
+from perceiver.types import Detections, Tracks
 
 # Reuse your HandOutput structure so we can feed existing trackers unchanged.
 # (These come from your detector implementation used in the demo.)

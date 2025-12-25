@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import List
 import numpy as np
-from detector.detector.types import HandOutput
+from detector.types import HandOutput
 
 @dataclass
 class HandTrack:
