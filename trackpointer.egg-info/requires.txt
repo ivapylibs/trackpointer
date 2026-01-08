@@ -1,3 +1,0 @@
-improcessor@ git+https://github.com/ivapylibs/improcessor.git
-detector@ git+https://github.com/ivapylibs/detector.git
-Lie@ git+https://github.com/ivapylibs/Lie.git
