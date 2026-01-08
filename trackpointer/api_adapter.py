@@ -8,12 +8,12 @@ from perceiver.types import Detections, Tracks
 
 # Reuse your HandOutput structure so we can feed existing trackers unchanged.
 # (These come from your detector implementation used in the demo.)
-from detector.detector.mediapipe_hands import HandOutput, make_hand_nan
+from detector.mediapipe_hands import HandOutput, make_hand_nan
 
 # Your concrete trackers
-from trackpointer.trackpointer.hand_tracker import HandLandmarksTracker
-from trackpointer.trackpointer.palm_tracker import PalmTracker
-from trackpointer.trackpointer.centroid_tracker import CentroidTracker
+from trackpointer.hand_tracker import HandLandmarksTracker
+from trackpointer.palm_tracker import PalmTracker
+from trackpointer.centroid_tracker import CentroidTracker
 
 
 # Map tracker type -> payload key we will propagate into Tracks.items
@@ -55,7 +55,7 @@ class APITrackpointerAdapter:
         # ---- add this alias so update() and debug lines can use a single name
         self.inner = self._trk
 
-        from trackpointer.trackpointer.calibration import MediaPoseCalibration
+        from trackpointer.calibration import MediaPoseCalibration
         self._calib = MediaPoseCalibration.from_cfg(cfg or {})
         self._cfg = cfg or {}
         print("[APITrackpointerAdapter]", self._calib.summary())
@@ -142,7 +142,7 @@ class APITrackpointerAdapter:
         # ---- try PnP if we have image size ----
         if image_shape is not None and self._calib.pnp_enabled:
             K = self._calib.get_K(image_shape)
-            from trackpointer.trackpointer.hand_model import compute_pick_pose_camera
+            from trackpointer.hand_model import compute_pick_pose_camera
 
             success, pick_cam, axis_cam = compute_pick_pose_camera(
                 landmarks_norm=L,          # uses xy internally

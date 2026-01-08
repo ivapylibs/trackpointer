@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 import numpy as np
-from detector.detector.types import HandOutput
+from detector.types import HandOutput
 
 @dataclass
 class CentroidTrack:
