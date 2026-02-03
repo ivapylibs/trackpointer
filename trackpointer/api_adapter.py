@@ -6,8 +6,8 @@ import numpy as np
 # Phase-1 types
 from perceiver.types import Detections, Tracks
 
-# Reuse your HandOutput structure so we can feed existing trackers unchanged.
-# (These come from your detector implementation used in the demo.)
+# Reuse HandOutput structure so we can feed existing trackers unchanged.
+# (These come from detector implementation used in the demo.)
 from detector.mediapipe_hands import HandOutput, make_hand_nan
 
 # Your concrete trackers
